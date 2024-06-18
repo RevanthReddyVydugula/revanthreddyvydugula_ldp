@@ -10,3 +10,6 @@ The problem statement is "John is a recruiter in a company and wants to map cand
 
 - ![Screenshot (103)](https://github.com/RevanthReddyVydugula/zemoso-training/assets/170494551/80214ce8-19e5-4883-8864-6797d9bb4c0e)
 
+
+- The time complexity of the code is O(nc⋅np) and the space complexity is also O(nc⋅np), where Nc is number of candidates and Np is average number of preference locations of each list.
+
