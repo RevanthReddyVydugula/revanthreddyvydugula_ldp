@@ -3,37 +3,44 @@ import java.util.*;
 public class MapCandidates {
     public static void main(String[] args) {
         Scanner sc = new Scanner(System.in);
+        System.out.println("Enter no. of Locations:\n");
         int n = sc.nextInt(); // number of locations of the company
+        System.out.println("Location and their capacities");
         HashMap<String, Integer> locations = new HashMap<>();
         for (int i = 0; i < n; i++) {
             locations.put(sc.next(), sc.nextInt());
         }
         // number of candidates
+        System.out.println("Enter number Of Candidates");
         int nc = sc.nextInt();
         // candidates and their preferred locations list
-        HashMap<String, List<String>> candidates = new HashMap<>();
+        System.out.println("Enter candidates name and their preferred locations list");
+        LinkedHashMap<String, List<String>> candidates = new LinkedHashMap<>();
         for (int i = 0; i < nc; i++) {
+            System.out.println("Enter candidate name:\n");
             String name = sc.next();
+            System.out.println("Length of preference List");
             int np = sc.nextInt();
+            System.out.println("Enter Locations");
             List<String> preferences = new ArrayList<>();
             for (int j = 0; j < np; j++) {
                 preferences.add(sc.next());
             }
             candidates.put(name, preferences);
         }
-        Map<String, String> finalMapping = mapCandidatesToLocation(locations, candidates);
+        LinkedHashMap<String, String> finalMapping = mapCandidatesToLocation(locations, candidates);
         // print the result
-        // for (Map.Entry<String, String> entry : finalMapping.entrySet()) {
-        // System.out.println("Candidate " + entry.getKey() + " assigned the location "
-        // + entry.getValue());
-        // }
-
-        System.out.println(finalMapping);
+        for (Map.Entry<String, String> entry : finalMapping.entrySet()) {
+            System.out.println("Candidate " + entry.getKey() + " assigned the location "
+                    + entry.getValue());
+        }
+        sc.close();
+        // System.out.println(finalMapping);
     }
 
-    private static Map<String, String> mapCandidatesToLocation(HashMap<String, Integer> locations,
-            HashMap<String, List<String>> candidates) {
-        Map<String, String> mappedLocations = new HashMap<>();
+    private static LinkedHashMap<String, String> mapCandidatesToLocation(HashMap<String, Integer> locations,
+            LinkedHashMap<String, List<String>> candidates) {
+        LinkedHashMap<String, String> mappedLocations = new LinkedHashMap<>();
 
         // iterate over candidate and locations to assign locations according to their
         // preferences
