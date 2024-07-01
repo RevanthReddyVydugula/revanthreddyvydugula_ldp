@@ -79,8 +79,6 @@ function filterTablesByName() {
 
 
 
-
-
 let tablesData = [
     { id: 'table-1', name: 'Table 1', amount: 0, totalItems: 0, items: [] },
     { id: 'table-2', name: 'Table 2', amount: 0, totalItems: 0, items: [] },
@@ -137,14 +135,9 @@ function initializeTables() {
         // Click to open modal
         tableDiv.addEventListener('click', () => openTableModal(table));
 
-
         tablesList.appendChild(tableDiv);
-
-
     });
 }
-
-
 
 // Function to update table item HTML with amount and total items
 function updateTableItemHTML(tableDiv, table) {
@@ -171,7 +164,7 @@ function openTableModal(table) {
         rowItem.innerHTML = `
             <td>${index + 1}</td>
             <td>${item.name}</td>
-            <td>Rs. ${item.price.toFixed(2) * item.quantity} </td>
+            <td>Rs. ${(item.price * item.quantity).toFixed(2)}</td>
             <td><input type="number" min="1" max="10"  value="${item.quantity}" class="quantity-input"></td>
             <td><button class="delete-item" data-index="${index}">Delete</button></td>
         `;
@@ -186,86 +179,94 @@ function openTableModal(table) {
 
     // Close modal when clicking the close button (X)
     const closeButton = document.querySelector('.close');
-    closeButton.addEventListener('click', () => {
-        modal.style.display = 'none';
-    });
+    closeButton.removeEventListener('click', closeModal); // Remove any existing listeners
+    closeButton.addEventListener('click', closeModal);
 
     // Close modal when clicking outside of it
-    window.addEventListener('click', e => {
-        if (e.target === modal) {
-            modal.style.display = 'none';
-        }
-    });
-
+    window.removeEventListener('click', clickOutsideToCloseModal); // Remove any existing listeners
+    window.addEventListener('click', clickOutsideToCloseModal);
 
     // For deleting an item in pop up window
     const deleteButtons = document.querySelectorAll('.delete-item');
     deleteButtons.forEach(button => {
-        button.addEventListener('click', function () {
-            const itemIndex = parseInt(this.getAttribute('data-index'));
-            const itemPrice = table.items[itemIndex].price;
-            const itemQuantity = table.items[itemIndex].quantity;
-
-            // Remove item from table's items array
-            table.items.splice(itemIndex, 1);
-
-            // update items and 
-            table.totalItems--;
-            table.amount -= itemPrice * itemQuantity;
-
-            // Update table display and modal
-            updateTableItemHTML(document.getElementById(table.id), table);
-            openTableModal(table);
-        });
+        button.removeEventListener('click', handleDeleteItem); // Remove any existing listeners
+        button.addEventListener('click', () => handleDeleteItem(table));
     });
 
     // Event listener for updating quantity
     const quantityInputs = document.querySelectorAll('.quantity-input');
     quantityInputs.forEach(input => {
-        input.addEventListener('input', function () {
-            const itemIndex = parseInt(this.parentElement.parentElement.querySelector('.delete-item').getAttribute('data-index'));
-            const newQuantity = parseInt(this.value);
-            const oldQuantity = table.items[itemIndex].quantity;
-            const itemPrice = table.items[itemIndex].price;
-
-            if (!isNaN(newQuantity) && newQuantity >= 1) {
-                // Update item quantity and total amount
-                table.items[itemIndex].quantity = newQuantity;
-                table.amount += itemPrice * (newQuantity - oldQuantity);
-
-                // Update table display and modal
-                updateTableItemHTML(document.getElementById(table.id), table);
-                openTableModal(table);
-            } else {
-                // Reset input to old quantity if new input is invalid
-                this.value = oldQuantity;
-            }
-        });
+        input.removeEventListener('input', handleQuantityInput); // Remove any existing listeners
+        input.addEventListener('input', () => handleQuantityInput(table));
     });
-
 
     // Event listener for session end button
     const sessionEndButton = document.getElementById('session-end');
-    sessionEndButton.addEventListener('click', () => {
+    sessionEndButton.removeEventListener('click', handleSessionEnd); // Remove any existing listeners
+    sessionEndButton.addEventListener('click', () => handleSessionEnd(table));
+
+    // Helper functions for event handlers
+    function closeModal() {
+        modal.style.display = 'none';
+    }
+
+    function clickOutsideToCloseModal(e) {
+        if (e.target === modal) {
+            modal.style.display = 'none';
+        }
+    }
+
+    function handleDeleteItem(table) {
+        const itemIndex = parseInt(this.getAttribute('data-index'));
+        const itemPrice = table.items[itemIndex].price;
+        const itemQuantity = table.items[itemIndex].quantity;
+
+        // Remove item from table's items array
+        table.items.splice(itemIndex, 1);
+
+        // Update items and total
+        table.totalItems--;
+        table.amount -= itemPrice * itemQuantity;
+
+        // Update table display and modal
+        updateTableItemHTML(document.getElementById(table.id), table);
+        openTableModal(table); // Refresh modal
+    }
+
+    function handleQuantityInput(table) {
+        const itemIndex = parseInt(this.parentElement.parentElement.querySelector('.delete-item').getAttribute('data-index'));
+        const newQuantity = parseInt(this.value);
+        const oldQuantity = table.items[itemIndex].quantity;
+        const itemPrice = table.items[itemIndex].price;
+
+        if (!isNaN(newQuantity) && newQuantity >= 1) {
+            // Update item quantity and total amount
+            table.items[itemIndex].quantity = newQuantity;
+            table.amount += itemPrice * (newQuantity - oldQuantity);
+
+            // Update table display and modal
+            updateTableItemHTML(document.getElementById(table.id), table);
+            openTableModal(table); // Refresh modal
+        } else {
+            // Reset input to old quantity if new input is invalid
+            this.value = oldQuantity;
+        }
+    }
+
+    function handleSessionEnd(table) {
         // Display total price to pay and clear table data
-        if (`${table.amount}` !== 0) {
+        if (table.amount !== 0) {
             alert(`Total Price to Pay for ${table.name}: Rs. ${table.amount.toFixed(2)}`);
             table.items = [];
             table.totalItems = 0;
             table.amount = 0;
             updateTableItemHTML(document.getElementById(table.id), table); // Update table display
         }
-        // else {
-        //     alert(`No items to bill for ${table.name}`);
-        // }
-
-        modal.style.display = 'none';
-        // Close modal after session ends
-    });
-
-
-
+        modal.style.display = 'none'; // Close modal after session ends
+    }
 }
+
+
 
 
 
